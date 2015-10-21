@@ -1,0 +1,18 @@
+ SELECT t1.id_piezometro,
+    t2.id_piezometro_pozo,
+    t1.fecha,
+    GREATEST(t1.groundwaterelevation, ((-9999))::double precision) AS groundwaterelevation,
+    GREATEST(t1.cota_superficie, ((-9999))::double precision) AS cota_superficie,
+    GREATEST(t1.cota_sensor, ((-9999))::double precision) AS cota_sensor,
+    GREATEST((t1.cota_superficie - t1.cota_sensor), ((-9999))::double precision) AS profundidad,
+    t1.geom,
+    t1.x_local,
+    t1.y_local
+   FROM (piezometria.v_piezometro_consolidado_v0 t1
+     JOIN ( SELECT t3.x_local,
+            t3.y_local,
+            min((t3.id_piezometro)::text) AS id_piezometro_pozo
+           FROM piezometria.v_piezometro_consolidado_v0 t3
+          GROUP BY t3.x_local, t3.y_local
+          ORDER BY min((t3.id_piezometro)::text)) t2 ON (((t1.x_local = t2.x_local) AND (t1.y_local = t2.y_local))))
+  ORDER BY t1.id_piezometro, t1.fecha;

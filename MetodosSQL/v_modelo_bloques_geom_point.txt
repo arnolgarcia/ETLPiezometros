@@ -1,0 +1,10 @@
+ SELECT st_makepoint(mb.xcentre, mb.ycentre, mb.zcentre) AS geom_point,
+    mb.xcentre,
+    mb.ycentre,
+    mb.zcentre,
+    mb.litologia,
+    mb.alteracion,
+    mb.minzone,
+    mb.ucs,
+    mb.rmr_adic
+   FROM modelo_bloques.modelo_bloques mb;

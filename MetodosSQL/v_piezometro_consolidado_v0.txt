@@ -1,0 +1,20 @@
+ SELECT pz.id_piezometro,
+    pz.fecha,
+    pz.groundwaterelevation,
+    pz.utm_este,
+    pz.utm_norte,
+        CASE
+            WHEN (pz.x_local IS NULL) THEN st_x(st_transform(st_setsrid(st_makepoint(pz.utm_este, pz.utm_norte), 24879), 1000))
+            ELSE pz.x_local
+        END AS x_local,
+        CASE
+            WHEN (pz.y_local IS NULL) THEN st_y(st_transform(st_setsrid(st_makepoint(pz.utm_este, pz.utm_norte), 24879), 1000))
+            ELSE pz.y_local
+        END AS y_local,
+    pz.cota_superficie,
+    pz.cota_sensor,
+        CASE
+            WHEN (pz.geom IS NULL) THEN st_transform(st_setsrid(st_makepoint(pz.utm_este, pz.utm_norte), 24879), 1000)
+            ELSE pz.geom
+        END AS geom
+   FROM piezometria.piezometro_consolidado_v2 pz;

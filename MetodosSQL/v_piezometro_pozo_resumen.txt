@@ -1,0 +1,23 @@
+ SELECT min((t1.id_piezometro)::text) AS id_piezometro_pozo,
+    round((t1.x_local)::numeric, 3) AS x_local,
+    round((t1.y_local)::numeric, 3) AS y_local,
+    t1.geom,
+    round((max(t1.cota_superficie))::numeric, 3) AS cota_superficie,
+    (array_agg(t1.id_piezometro ORDER BY t1.profundidad))::character varying AS id_piezometros,
+    (array_agg(round((t1.cota_sensor)::numeric, 3) ORDER BY t1.profundidad))::character varying AS cota_sensores,
+    (array_agg(t1.profundidad ORDER BY t1.profundidad))::character varying AS profundidades,
+    (array_agg(round((t1.ultima_medicion_gwe)::numeric, 2) ORDER BY t1.profundidad))::character varying AS ultimas_mediciones,
+    (array_agg(t1.fecha_min ORDER BY t1.profundidad))::character varying AS fechas_minimas,
+    (array_agg(t1.fecha_max ORDER BY t1.profundidad))::character varying AS fechas_maximas,
+    (array_agg(t1.litologia ORDER BY t1.profundidad))::character varying AS litologias,
+    (array_agg(t1.alteracion ORDER BY t1.profundidad))::character varying AS alteraciones,
+    (array_agg(t1.minzone ORDER BY t1.profundidad))::character varying AS minzones,
+    (array_agg(round((t1.ucs)::numeric, 2) ORDER BY t1.profundidad))::character varying AS ucs,
+    (array_agg(round((t1.rmr_adic)::numeric, 2) ORDER BY t1.profundidad))::character varying AS rmr,
+    (array_agg(round((t1.distancia)::numeric, 2) ORDER BY t1.profundidad))::character varying AS distancia_mbloque,
+    (array_agg(t1.en_bloque ORDER BY t1.profundidad))::character varying AS en_bloque,
+    count(t1.id_piezometro) AS nro_piezometros
+   FROM piezometria.v_piezometro_resumen t1
+  WHERE ((t1.x_local IS NOT NULL) AND (t1.y_local IS NOT NULL))
+  GROUP BY t1.x_local, t1.y_local, t1.geom
+  ORDER BY min((t1.id_piezometro)::text);

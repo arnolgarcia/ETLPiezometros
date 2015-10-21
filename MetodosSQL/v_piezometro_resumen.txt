@@ -1,0 +1,41 @@
+ SELECT pz.id_piezometro,
+    pz.x_local,
+    pz.y_local,
+    pz.geom,
+    pz.cota_superficie,
+    pz.cota_sensor,
+    pz.profundidad,
+    pz.fecha_max,
+    pz.fecha_min,
+    pz.ultima_medicion_gwe,
+    pmb.alteracion,
+    pmb.litologia,
+    pmb.minzone,
+    pmb.ucs,
+    pmb.rmr_adic,
+    pmb.xcentre,
+    pmb.ycentre,
+    pmb.zcentre,
+    pmb.distancia,
+    (|/ ((((12.5 ^ (2)::numeric) + (12.5 ^ (2)::numeric)) + (7.5 ^ (2)::numeric)))::double precision) AS dist_maxima_en_bloque,
+    (pmb.distancia < (|/ ((((12.5 ^ (2)::numeric) + (12.5 ^ (2)::numeric)) + (7.5 ^ (2)::numeric)))::double precision)) AS en_bloque
+   FROM (piezometria.piezometro_inter_mbloque pmb
+     RIGHT JOIN ( SELECT t1.id_piezometro,
+            t1.x_local,
+            t1.y_local,
+            t1.geom,
+            t1.cota_superficie,
+            t1.cota_sensor,
+            t1.profundidad,
+            t2.fecha_max,
+            t2.fecha_min,
+            t1.groundwaterelevation AS ultima_medicion_gwe
+           FROM (piezometria.v_piezometro_consolidado t1
+             JOIN ( SELECT t3.id_piezometro,
+                    max(t3.fecha) AS fecha_max,
+                    min(t3.fecha) AS fecha_min
+                   FROM piezometria.v_piezometro_consolidado_v0 t3
+                  WHERE (t3.groundwaterelevation IS NOT NULL)
+                  GROUP BY t3.id_piezometro) t2 ON ((((t1.id_piezometro)::text = (t2.id_piezometro)::text) AND (t1.fecha = t2.fecha_max))))
+          ORDER BY t1.id_piezometro) pz ON (((pmb.id_piezometro)::text = (pz.id_piezometro)::text)))
+  ORDER BY pz.id_piezometro;
