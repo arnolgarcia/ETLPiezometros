@@ -1,0 +1,20 @@
+TRUNCATE piezometria.piezometro_inter_mbloque;
+
+INSERT INTO piezometria.piezometro_inter_mbloque (
+	SELECT DISTINCT
+		ON (pz.id_piezometro) *, ST_3DDistance (
+			pz.pz_geom_point,
+			mb.geom_point
+		) AS distancia
+	FROM
+		"piezometria"."v_piezometro_geom_point" pz,
+		modelo_bloques.v_modelo_bloques_geom_point mb
+	WHERE
+		ST_3DDistance (
+			pz.pz_geom_point,
+			mb.geom_point
+		) < 100
+	ORDER BY
+		pz.id_piezometro,
+		distancia
+);
