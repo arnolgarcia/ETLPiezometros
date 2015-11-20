@@ -1,0 +1,24 @@
+-- Eliminar visat si existe
+DROP VIEW
+IF EXISTS piezometria.v_piezometro_consolidado_v0;
+
+-- Crear vista con las coordenadas/geom locales rellenados a partir de las coordenadas en WGS84
+CREATE
+OR REPLACE VIEW piezometria.v_piezometro_consolidado_v0 AS (
+	SELECT
+		id_piezometro,
+		fecha,
+		groundwaterelevation,
+		utm_este,
+		utm_norte,
+-- Calcular el "x_local" y "y_local" a partir de las coordenadas en WGS84 cuando vengan nulas
+		CASE WHEN x_local IS NULL THEN st_x(st_transform(ST_SetSRID (ST_MakePoint (utm_este, utm_norte),24879),1000)) ELSE x_local END AS x_local,
+		CASE WHEN y_local IS NULL THEN st_y(st_transform(ST_SetSRID (ST_MakePoint (utm_este, utm_norte),24879),1000)) ELSE y_local END AS y_local,
+		cota_superficie,
+		cota_sensor,
+-- Agregar geom de cada piezometro en coordenadas locales (SRID: 1000)
+		CASE WHEN geom IS NULL THEN st_transform(ST_SetSRID (ST_MakePoint (utm_este, utm_norte),24879),1000) ELSE geom END AS geom
+	FROM
+-- Definir la tabla con los datos a utilizar
+		piezometria.piezometro_consolidado_v2
+);

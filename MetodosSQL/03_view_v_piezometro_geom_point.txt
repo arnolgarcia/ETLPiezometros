@@ -1,0 +1,16 @@
+-- Crear visat "piezometria.v_piezometro_geom_point"
+CREATE OR REPLACE VIEW piezometria.v_piezometro_geom_point AS (
+	 SELECT pz.id_piezometro,
+    pz.x_local,
+    pz.y_local,
+    pz.cota_sensor,
+    st_makepoint(pz.x_local, pz.y_local, pz.cota_sensor) AS pz_geom_point
+   FROM ( SELECT t1.id_piezometro,
+            t1.x_local,
+            t1.y_local,
+            t1.cota_sensor
+           FROM piezometria.v_piezometro_consolidado_v0 t1
+          GROUP BY t1.id_piezometro, t1.x_local, t1.y_local, t1.cota_sensor) pz
+  WHERE (st_makepoint(pz.x_local, pz.y_local, pz.cota_sensor) IS NOT NULL)
+  ORDER BY pz.id_piezometro
+);

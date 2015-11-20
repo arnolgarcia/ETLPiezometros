@@ -1,4 +1,6 @@
- SELECT pz.id_piezometro,
+-- Crear vista resumida integrando piezometros y modelo de bloques
+CREATE OR REPLACE VIEW piezometria.v_piezometro_resumen AS (
+	 SELECT pz.id_piezometro,
     pz.x_local,
     pz.y_local,
     pz.geom,
@@ -19,7 +21,7 @@
     pmb.distancia,
     (|/ ((((12.5 ^ (2)::numeric) + (12.5 ^ (2)::numeric)) + (7.5 ^ (2)::numeric)))::double precision) AS dist_maxima_en_bloque,
     (pmb.distancia < (|/ ((((12.5 ^ (2)::numeric) + (12.5 ^ (2)::numeric)) + (7.5 ^ (2)::numeric)))::double precision)) AS en_bloque
-   FROM (piezometria.piezometro_inter_mbloque pmb
+   FROM (piezometria.mv_piezometro_inter_mbloque pmb
      RIGHT JOIN ( SELECT t1.id_piezometro,
             t1.x_local,
             t1.y_local,
@@ -38,4 +40,5 @@
                   WHERE (t3.groundwaterelevation IS NOT NULL)
                   GROUP BY t3.id_piezometro) t2 ON ((((t1.id_piezometro)::text = (t2.id_piezometro)::text) AND (t1.fecha = t2.fecha_max))))
           ORDER BY t1.id_piezometro) pz ON (((pmb.id_piezometro)::text = (pz.id_piezometro)::text)))
-  ORDER BY pz.id_piezometro;
+  ORDER BY pz.id_piezometro
+);

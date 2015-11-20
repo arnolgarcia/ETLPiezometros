@@ -1,0 +1,2 @@
+-- Query para actualizar la vista materializada "mv_piezometro_inter_mbloque"
+REFRESH MATERIALIZED VIEW piezometria.mv_piezometro_inter_mbloque;
