@@ -1,1 +1,0 @@
-SELECT * FROM piezometria.mv_piezometro_inter_mbloque;
